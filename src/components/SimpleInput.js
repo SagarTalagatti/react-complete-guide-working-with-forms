@@ -30,7 +30,7 @@ const SimpleInput = (props) => {
     //this prevents the default behaviour of sending HTTP request on form submission
     event.preventDefault();
 
-    if (!enteredNameIsValid) {
+    if (!formIsValid) {
       return;
     }
 
