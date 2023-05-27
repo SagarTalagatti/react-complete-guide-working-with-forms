@@ -1,18 +1,24 @@
-import { useState } from "react";
+import useInput from "../hooks/use-input";
 
 const SimpleInput = (props) => {
   //using ref or state depends on what we plan to do with the entered value. If we only want it once when form is submitted, ref is better. However, say if we need value of field on every keystroke for kind of instant validation, then using state is better idea.
-  const [enteredName, setEnteredName] = useState("");
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+  const {
+    value: enteredName,
+    isValid: enteredNameIsValid,
+    hasError: nameInputHasError,
+    valueChangeHandler: nameChangeHandler,
+    inputBlurHandler: nameBlurHandler,
+    reset: resetNameInput,
+  } = useInput((value) => value.trim().length !== 0);
 
-  const [enteredEmail, setEnteredEmail] = useState("");
-  const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
-
-  const enteredNameIsValid = enteredName.trim().length !== 0;
-  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
-
-  const enteredEmailIsValid = enteredEmail.includes("@");
-  const emailInputIsInvalid = !enteredEmailIsValid && enteredEmailTouched;
+  const {
+    value: enteredEmail,
+    isValid: enteredEmailIsValid,
+    hasError: emailInputHasError,
+    valueChangeHandler: emailChangeHandler,
+    inputBlurHandler: emailBlurHandler,
+    reset: resetEmailInput,
+  } = useInput((value) => value.includes("@"));
 
   let formIsValid = false;
 
@@ -20,46 +26,23 @@ const SimpleInput = (props) => {
     formIsValid = true;
   }
 
-  const nameInputChangeHandler = (event) => {
-    setEnteredName(event.target.value);
-  };
-
-  const emailInputChangeHandler = (event) => {
-    setEnteredEmail(event.target.value);
-  };
-
-  const nameInputBlurHandler = (event) => {
-    setEnteredNameTouched(true);
-  };
-
-  const emailInputBlurHandler = (event) => {
-    setEnteredEmailTouched(true);
-  };
-
   const formSubmissionHandler = (event) => {
     //this prevents the default behaviour of sending HTTP request on form submission
     event.preventDefault();
-
-    setEnteredNameTouched(true);
 
     if (!enteredNameIsValid) {
       return;
     }
 
-    console.log(enteredName);
-
-    setEnteredName("");
-    setEnteredNameTouched(false);
-
-    setEnteredEmail("");
-    setEnteredEmailTouched(false);
+    resetNameInput();
+    resetEmailInput();
   };
 
-  const nameInputClasses = !nameInputIsInvalid
+  const nameInputClasses = !nameInputHasError
     ? "form-control"
     : "form-control invalid";
 
-  const emailInputClasses = !emailInputIsInvalid
+  const emailInputClasses = !emailInputHasError
     ? "form-control"
     : "form-control invalid";
 
@@ -71,10 +54,10 @@ const SimpleInput = (props) => {
           type="text"
           id="name"
           value={enteredName}
-          onChange={nameInputChangeHandler}
-          onBlur={nameInputBlurHandler}
+          onChange={nameChangeHandler}
+          onBlur={nameBlurHandler}
         />
-        {nameInputIsInvalid && (
+        {nameInputHasError && (
           <p className="error-text">Name must not be empty</p>
         )}
       </div>
@@ -84,10 +67,10 @@ const SimpleInput = (props) => {
           type="email"
           id="email"
           value={enteredEmail}
-          onChange={emailInputChangeHandler}
-          onBlur={emailInputBlurHandler}
+          onChange={emailChangeHandler}
+          onBlur={emailBlurHandler}
         />
-        {emailInputIsInvalid && (
+        {emailInputHasError && (
           <p className="error-text">Please enter a valid email.</p>
         )}
       </div>
